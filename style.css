@@ -113,11 +113,22 @@ body {
 .snake {
     border-radius: 100%;
     border: #5a5a5a 1px solid;
-    background-color: #bfe19f;
 }
 
 .snake.head {
     background-color: #6ec51d;
+}
+
+.snake.body {
+    background-color: #bfe19f;
+}
+
+.snake.hard_mode_head {
+    background-color: red;
+}
+
+.snake.hard_mode_body {
+    background-color: rgb(80, 0, 0);
 }
 
 .food {
@@ -150,6 +161,20 @@ body {
         -moz-transform: translate(0, -50%);
         -webkit-transform: translate(0, -50%);
         -o-transform: translate(0, -50%);
+}
+
+#control_arrows_block svg {
+    position: relative;
+    display: block;
+    width: 34px;
+    height: auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+        -ms-transform: translate(-50%, -50%);
+        -moz-transform: translate(-50%, -50%);
+        -webkit-transform: translate(-50%, -50%);
+        -o-transform: translate(-50%, -50%);
 }
 
 #control_arrows_up,
@@ -207,15 +232,11 @@ body {
         -o-transform: translate(0, -50%);
 }
 
-#restart_block {
+#control_buttons_block {
     position: relative;
     display: block;
     right: 52px;
-    width: 80px;
-    height: 80px;
-    border: 2px solid black;
     float: right;
-    border-radius: 100%;
     top: 50%;
     transform: translate(0, -50%);
         -ms-transform: translate(0, -50%);
@@ -224,15 +245,44 @@ body {
         -o-transform: translate(0, -50%);
 }
 
-#restart_button {
+#hard_mode_block,
+#restart_block {
     position: relative;
     display: block;
+    width: 80px;
+    height: 80px;
+    float: left;
+    border: 2px solid black;
+    border-radius: 100%;
+}
+
+#hard_mode_block {
+    margin-right: 15px;
+}
+
+#hard_mode_button,
+#restart_button {
+    position: relative;
+    display: grid;
+    align-items: center;
     width: 100%;
     height: 100%;
     border-radius: 100%;
     border: none;
-    background-color: #e27f83;
     cursor: pointer;
+    text-align: center;
     text-transform: uppercase;
     font-weight: bold;
+}
+
+#hard_mode_button {
+    background-color: #e27f83;
+}
+
+#hard_mode_button.active {
+    background-color: brown;
+}
+
+#restart_button {
+    background-color: #e27f83;
 }
