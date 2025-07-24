@@ -8,6 +8,7 @@ const upButton = document.getElementById('control_arrows_up');
 const rightButton = document.getElementById('control_arrows_right');
 const downButton = document.getElementById('control_arrows_down');
 const leftButton = document.getElementById('control_arrows_left');
+const hardModeButton = document.getElementById('hard_mode_button');
 const restartButton = document.getElementById('restart_button');
 
 //Define game variables
@@ -20,8 +21,10 @@ let snake = [
 let food = generateFood();
 let highScore = 0;
 let direction = 'right';
+let inputQueue = [];
+let isHardMode = false;
 let gameInterval;
-let gameSpeedDelay = 125;
+let gameSpeedDelay = isHardMode ? 75 : 150;
 let gameStarted = false;
 
 // Draw game map, snake, food
@@ -38,7 +41,10 @@ function drawSnake() {
         const snakeElement = createGameElement('div', 'snake');
         setPosition(snakeElement, segment);
         if (index === 0) {
-            snakeElement.classList.add('head');
+            isHardMode ? snakeElement.classList.add('hard_mode_head') : snakeElement.classList.add('head');
+        }
+        if (index !== 0) {
+            isHardMode ? snakeElement.classList.add('hard_mode_body') : snakeElement.classList.add('body');
         }
         board.appendChild(snakeElement);
     });
@@ -68,14 +74,44 @@ function drawFood() {
 
 // Generate food
 function generateFood() {
-    const x = Math.floor(Math.random() * gridSize) + 1;
-    const y = Math.floor(Math.random() * gridSize) + 1;
-    return { x, y };
+    let newFood;
+    while (true) {
+        newFood = {
+            x: Math.floor(Math.random() * gridSize) + 1,
+            y: Math.floor(Math.random() * gridSize) + 1
+        };
+
+        let collisionWithSnake = false;
+        for (let i = 0; i < snake.length; i++) {
+            if (newFood.x === snake[i].x && newFood.y === snake[i].y) {
+                collisionWithSnake = true;
+                break;
+            }
+        }
+
+        if (!collisionWithSnake) {
+            return newFood;
+        }
+    }
 }
 
 // Moving the snake
 function move() {
     const head = { ...snake[0] };
+    
+    if (inputQueue.length > 0) {
+        let desiredDirection = inputQueue.shift();
+
+        if (
+            (desiredDirection === 'up' && direction !== 'down') ||
+            (desiredDirection === 'down' && direction !== 'up') ||
+            (desiredDirection === 'left' && direction !== 'right') ||
+            (desiredDirection === 'right' && direction !== 'left')
+        ) {
+            direction = desiredDirection;
+        }
+    }
+
     switch (direction) {
         case 'up':
             head.y--;
@@ -127,14 +163,14 @@ function handleKeyPress(event) {
     ) {
         startGame();
     } else {
-        if (event.key === 'ArrowUp' && direction !== 'down') {
-            direction = 'up';
-        } else if (event.key === 'ArrowDown' && direction !== 'up') {
-            direction = 'down';
-        } else if (event.key === 'ArrowLeft' && direction !== 'right') {
-            direction = 'left';
-        } else if (event.key === 'ArrowRight' && direction !== 'left') {
-            direction = 'right';
+        if (event.key === 'ArrowUp') {
+            inputQueue.push('up');
+        } else if (event.key === 'ArrowDown') {
+            inputQueue.push('down');
+        } else if (event.key === 'ArrowLeft') {
+            inputQueue.push('left');
+        } else if (event.key === 'ArrowRight') {
+            inputQueue.push('right');
         }
     }
 }
@@ -175,7 +211,8 @@ function resetGame() {
     ]
     food = generateFood();
     direction = 'right'
-    gameSpeedDelay = 125;
+    inputQueue = [];
+    gameSpeedDelay = isHardMode ? 75 : 150;
     updateScore();
 }
 
@@ -200,6 +237,19 @@ function updateHighScore() {
     highScoreText.style.display = 'block';
 }
 
+hardModeButton.addEventListener('click', () => {
+    if (!isHardMode) {
+        isHardMode = true;
+        hardModeButton.classList.add('active');
+    } else {
+        isHardMode = false;
+        hardModeButton.classList.remove('active');
+    }
+
+    resetGame();
+    startGame();
+});
+
 restartButton.addEventListener('click', () => {
     resetGame();
     startGame();
@@ -209,34 +259,26 @@ upButton.addEventListener('click', () => {
     if (gameStarted === false) {
         startGame();
     }
-    if (direction !== 'down') {
-        direction = 'up';
-    }
+    inputQueue.push('up');
 });
 
 rightButton.addEventListener('click', () => {
     if (gameStarted === false) {
         startGame();
     }
-    if (direction !== 'left') {
-        direction = 'right';
-    }
+    inputQueue.push('right');
 });
 
 downButton.addEventListener('click', () => {
     if (gameStarted === false) {
         startGame();
     }
-    if (direction !== 'up') {
-        direction = 'down';
-    }
+    inputQueue.push('down');
 });
 
 leftButton.addEventListener('click', () => {
     if (gameStarted === false) {
         startGame();
     }
-    if (direction !== 'right') {
-        direction = 'left';
-    }
+    inputQueue.push('left');
 });
